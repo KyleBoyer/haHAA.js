@@ -25,7 +25,7 @@ gulp.task('watch', () => {
     }
   });
 
-  gulp.watch('src/kappa.js', ['build']).on('change', browserSync.reload);
+  gulp.watch('src/hahaa.js', ['build']).on('change', browserSync.reload);
 });
 
 /**
@@ -33,12 +33,12 @@ gulp.task('watch', () => {
  * Transpile src from es6 and save to dist
  */
 gulp.task('build', () => {
-  return gulp.src('src/kappa.js')
+  return gulp.src('src/hahaa.js')
     .pipe(babel({
       presets: ['es2015']
     }))
     .pipe(gulp.dest('dist'))
     .pipe(uglify())
-    .pipe(rename('kappa.min.js'))
+    .pipe(rename('hahaa.min.js'))
     .pipe(gulp.dest('dist'));
 });

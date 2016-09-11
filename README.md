@@ -1,57 +1,22 @@
 [Kappa]: http://static-cdn.jtvnw.net/emoticons/v1/25/1.0
+[haHAA]: https://cdn.betterttv.net/emote/555981336ba1901877765555/2x
 
-# ![Kappa Emote][Kappa] Kappa.js v2.0.4
-Kappa.js is a simple jQuery Plugin that can easily find text Twitch emotes and replace them with their respective emoticons.  
+# ![haHAA Emote][haHAA] haHAA.js
+haHAA.js is a fork of [Kappa.js](https://github.com/SimulatedGREG/Kappa.js) by SimulatedGREG.  In addition to the functionality of Kappa.js, 
+haHAA.js also finds and replaces [Better Twitch TV](http://nightdev.com/betterttv/) emote text with icons.
 
-## How does this work?
-Kappa.js is made possible with the use of [Twitch Emotes API v2](http://twitchemotes.com/apidocs). Kappa.js will pull a fresh list of **global emotes** and save in localStorage. Please note this API is currently in *development*, so features and structure may  change without warning.
-
-## How do I get this?
-Kappa.js can be quickly installed from the public bower registry. Just run...
-```
-bower install kappa.js
-```
-Or maybe you'd prefer npm...
-```
-npm install kappa.js
-```
-Alternatively, you can simply clone down this repository with...
-```
-git clone https://github.com/SimulatedGREG/Kappa.js.git
-```
-
-## How do I use this?
-To get started include the `kappa.js` file just before the end of your closing `</body>` tag.
-
+## Usage
+Presently the jQuery plugin interface is unchanged.
 ```html
-        ...
-        <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-        <script src="kappa.js"></script>
-    </body>
-</html>
-```
-Once included use jQuery to select which elements your want `kappa.js` to apply in this manner... `$([selector]).kappa([options]);`
-
-In this example `kappa.js` will apply to elements with `class="kappa"` in the DOM once the page is loaded.
-```html
-        ...
+        <p class="hahaa">haHAA nice meme haHAA</p>
+        <script src="hahaa.js"></script>
         <script>
             $(document).ready(function() {
-              $('.kappa').kappa();
+              $('.hahaa').kappa();
             });
         </script>
     </body>
 </html>
 ```
-And that's it! There's nothing else to do. All text emotes will be replaced with their respective Twitch emoticons. But wait, there's more!
-
-### Options
-
-| option    | type   | default | description                                                                  |
-|:-----------|:--------|:-------|:------------------------------------------------------------------------------|
-| emoteSize | string | `'small'` | Sets emoticon image size. Can be `'small'`, `'medium'`, or `'large'`. |
-| customClass | string | `null` | Adds a custom class to each injected `<img>` emoticon. |
-
-#### Credits
-[Twitch Emotes API v2](http://twitchemotes.com/apidocs)  
-*Emote and badge images are property of [Twitch Interactive](http://www.twitch.tv/) and their respective owners.*
+## How it works
+haHAA.js uses the [BetterTTV emote API](https://api.betterttv.net/2/emotes/) to get a current list of supported emotes

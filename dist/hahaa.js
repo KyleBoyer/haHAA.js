@@ -97,7 +97,7 @@
   var twitchEmotesRegExp = /\\b(Kappa)\\b/g;
   var bttvEmotesRegex = /\\b(haHAA|LUL)\\b/g;
 
-  var expireTime = 2.592E8; // 3 Days
+  var expireTime = 259200000; // 3 Days
 
   function cacheExpired() {
     // this is faster than parsing the JSON

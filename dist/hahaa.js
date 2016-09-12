@@ -2,8 +2,11 @@
 
 (function ($) {
 
-  function init() {
-    return Promise.all([new Promise(getTwitchEmotesPromise), new Promise(getBTTVEmotes)]);
+  //if (typeof(localStorage) !== undefined)
+  var previousStorage = localStorage.getItem("hahaa-js");
+
+  function getApiPromise() {
+    return Promise.all([new Promise(getTwitchEmotes), new Promise(getBTTVEmotes)]);
   }
 
   /**
@@ -11,7 +14,7 @@
    * @param  {resolve} res Promise resolver
    * @param  {reject} rej Promise rejector
    */
-  function getTwitchEmotesPromise(res, rej) {
+  function getTwitchEmotes(res, rej) {
     $.get('https://twitchemotes.com/api_cache/v2/global.json', function (data) {
       res(data);
     });
@@ -30,6 +33,7 @@
     console.log("Could not get emote list, you will only have Kappas Kappa");
 
     window.KappaJS = {
+      "timestamp": 0,
       "twitch": {
         "meta": { "generated_at": "2016-09-10T19:40:04Z" },
         "template": {
@@ -51,12 +55,12 @@
    * Generates a regex for the default twich tv emotes
    */
   function emotesRegex(obj) {
-    return new RegExp("\\b(" + Object.keys(KappaJS.twitch.emotes).join("|") + ")\\b", "g");
+    return new RegExp("\\b(" + Object.keys(obj.emotes).join("|") + ")\\b", "g");
   }
 
   function betterTwichEmotesRegex(obj) {
-    return new RegExp("\\b(" + obj.emotes.map(function (e) {
-      return e.code.replace(/([(\')])/g, '\\$1'); // escape parenthesis and single quotes
+    return new RegExp("\\b(" + Object.keys(obj.emotes).map(function (e) {
+      return e.replace(/([(\')])/g, '\\$1'); // escape parenthesis and single quotes
     }).join("|") + ")\\b", "g"); // FIXME :tf: (puke) and others are not being matched due to word break (\b) behavior
   }
 
@@ -68,25 +72,54 @@
       urlTemplate: data.urlTemplate,
       emotes: {}
     };
-    console.log(data);
     data.emotes.forEach(function (emote) {
       out.emotes[emote.code] = emote;
     });
     return out;
   }
 
+  /**
+   * Creates the app data object and regexes
+   */
+  function buildAppObjects() {
+    getApiPromise().then(function (data) {
+      window.KappaJS = {
+        timestamp: new Date().getTime() // keep the time to implement expiration
+      };
+      window.KappaJS.twitch = data[0];
+      window.KappaJS.bttv = buildBttvObject(data[1]);
+      localStorage.setItem("hahaa-js", JSON.stringify(window.KappaJS));
+      twitchEmotesRegExp = emotesRegex(window.KappaJS.twitch);
+      bttvEmotesRegex = betterTwichEmotesRegex(window.KappaJS.bttv);
+    }, cannotUpdate); // reject
+  }
+
   var twitchEmotesRegExp = /\\b(Kappa)\\b/g;
   var bttvEmotesRegex = /\\b(haHAA|LUL)\\b/g;
 
-  init().then(function (data) {
-    window.KappaJS = {};
-    window.KappaJS.twitch = data[0];
-    window.KappaJS.bttv = buildBttvObject(data[1]);
-    twitchEmotesRegExp = emotesRegex(data[0]);
-    bttvEmotesRegex = betterTwichEmotesRegex(data[1]);
-  }, cannotUpdate); // reject 
+  var expireTime = 2.592E8; // 3 Days
 
-  console.log(twitchEmotesRegExp);
+  function cacheExpired() {
+    // this is faster than parsing the JSON
+    var start = previousStorage.indexOf('"timestamp":') + '"timestamp":'.length;
+    var end = previousStorage.indexOf(',', start);
+    var timestamp = parseInt(previousStorage.substring(start, end));
+    return new Date().getTime() - timestamp > expireTime;
+  }
+
+  if (previousStorage !== null) {
+    if (cacheExpired()) {
+      // rebuild the cache every 3 days
+      console.log('Rebuilding Emote data cache');
+      buildAppObjects();
+    } else {
+      window.KappaJS = JSON.parse(previousStorage);
+      twitchEmotesRegExp = emotesRegex(window.KappaJS.twitch);
+      bttvEmotesRegex = betterTwichEmotesRegex(window.KappaJS.bttv);
+    }
+  } else {
+    buildAppObjects();
+  }
 
   /**
    * Initialize jQuery Plugin
